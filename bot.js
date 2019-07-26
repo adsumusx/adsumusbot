@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
 const config = require("./config.json");
-
+//ADICIONE UM 8 NO ARQUIVO CONFIG.JSON NO FIM DO TOKEN PARA FUNCIONAR
 client.on("ready", () => {
     console.log(`Bot foi iniciado`);
     client.user.setGame(`XanFrango`);
