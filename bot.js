@@ -8,7 +8,6 @@ client.on("ready", () => {
 })
 
 client.on("message", async message => {
-
     if (message.author.bot) return;
     if (message.channel.type === "dm") return;
     if (!message.content.startsWith(config.prefix)) return;
@@ -16,11 +15,29 @@ client.on("message", async message => {
     const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
     const comando = args.shift().toLowerCase();
 
-    // coamdno ping
     if (comando === "ping") {
         const m = await message.channel.send("Ping?");
         m.edit(`Pong! A Latência é ${m.createdTimestamp - message.createdTimestamp}ms. A Latencia da API é ${Math.round(client.ping)}ms`);
     }
+    if (comando === "ajuda" || comando === "help") {
+        message.channel.send(` Nossos comandos são: "!ping", "!dado" `)
+    }
+
+    try {
+        if (comando === "dado" || comando === "roll") {
+            const valor = message.content.substr(5);
+            const total = Math.floor(Math.random() * valor);
+            if(!isNaN(total)){
+                message.channel.send(` O valor do dado foi -> ${valor} com o total de ->  ${total}`);
+            }
+            else{
+                error;
+            }
+        }
+    } catch (error) {
+        message.channel.send(`Repita o comando de forma certa -> "!dado x" usando apenas valores númericos`);
+    }
+
 });
 
 client.login(config.token);
