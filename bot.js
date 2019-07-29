@@ -139,8 +139,8 @@ client.on("message", async message => {
                 var aposta = message.content.substr(6).split(' ');
             }
             const valorAposta = parseInt(aposta[1]);
-            aposta[0].toLowerCase();
-            if (aposta[0] != "cara" && aposta[0] != "coroa") {
+            const ladoMoeda = aposta[0].toLowerCase();
+            if (ladoMoeda != "cara" && ladoMoeda != "coroa") {
                 throw "moeda";
             }
             resultado = Math.floor(Math.random() * 2).toString();
@@ -155,7 +155,7 @@ client.on("message", async message => {
             }
 
 
-            if (aposta[0] == resultado) {
+            if (ladoMoeda == resultado) {
                 database.ref(`${message.author.id}`)
                     .update({
                         ouro: ouro + valorAposta
