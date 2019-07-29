@@ -95,7 +95,7 @@ client.on("message", async message => {
     }
 
     if (comando === "ajuda" || comando === "help") {
-        message.channel.send(` Nossos comandos são: "!ping", "!dado" , "!nivel", "!xp" `)
+        message.channel.send(` Nossos comandos são: "!ping", "!dado" , "!nivel", "!xp", "!moeda", "gold" `)
     }
 
     try {
