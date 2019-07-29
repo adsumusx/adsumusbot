@@ -139,6 +139,7 @@ client.on("message", async message => {
                 var aposta = message.content.substr(6).split(' ');
             }
             const valorAposta = parseInt(aposta[1]);
+            aposta[0].toLowerCase();
             if (aposta[0] != "cara" && aposta[0] != "coroa") {
                 throw "moeda";
             }
