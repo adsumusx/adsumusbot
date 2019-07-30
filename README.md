@@ -3,8 +3,6 @@ Bot Adsumus feito para a plataforma discord.
 
 TUTORIAL PARA FUNCIONAR:
 
-npm install discord.js
+npm install --save
 
-npm install firebase
-
-E adicione um 8 no final do token, no arquivo config.json.
+E adicione o token do bot, no arquivo config.json.
