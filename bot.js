@@ -135,7 +135,7 @@ client.on("message", async message => {
     if (comando === "ouro" || comando === "gold") {
         getBanco.getGold(idCliente);
         setTimeout(function () {
-            message.channel.send(`Sua riqueza é de R$${ouro}.00`);
+            message.channel.send(`Sua riqueza é de R$${ouro}`);
         }, 300);
     }
 
@@ -181,20 +181,30 @@ client.on("message", async message => {
             var valorTrans = parseInt(valor[0]);
             var idReceber = valor[1].replace("<@!", "").replace(">", "");
 
-            getBanco.getGold(idCliente)
+            if (idReceber.length != 18) {
+                throw "usuario";
+            }
+
             setTimeout(function () {
-                if (ouro < valorTrans) {
-                    throw "dinheiro";
-                }
+                    getBanco.getGold(idCliente);
+                    if (ouro < valorTrans) {
+                        throw "dinheiro";
+                    }
+            }, 300);
+
+            setTimeout(function () {
                 setBanco.setGold(idCliente, "remover", valorTrans)
             }, 300);
 
             setBanco.setGold(idReceber, "add", valorTrans)
-            message.channel.send(`${message.author.username} transferiu com sucesso R$${valorTrans}.00 para ${valor[1]}`)
+            message.channel.send(`${message.author.username} transferiu com sucesso *R$${valorTrans}* para ${valor[1]}`)
 
         } catch (error) {
             if (error === "dinheiro") {
                 message.channel.send(`Você é pobre lhe falta dinheiro! `)
+            }
+            else if (error === "usuario") {
+                message.channel.send(`Você não marcou nenhum usuario, use '@nomedousuario' . `)
             }
             else {
                 message.channel.send(`Repita o comando de forma correta -> "!transferir x @y substituindo x pela quantia que irá tranferir e y marcando a pessoa que deseja transferir.`)
