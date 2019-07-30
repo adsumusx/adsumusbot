@@ -6,7 +6,7 @@ const bot = require("./bot.js");
 const getBanco = require("./getBanco.js");
 
 
-function setXp(idServidor, idCliente, statusXp, qntXp) {
+exports.setXp = function setXp(idServidor, idCliente, statusXp) {
     if (statusXp == "null") {
         database.ref(`servidores/niveis/${idServidor}/${idCliente}`)
             .set({
@@ -18,10 +18,10 @@ function setXp(idServidor, idCliente, statusXp, qntXp) {
     else if (statusXp == "atualizarXp") {
         database.ref(`servidores/niveis/${idServidor}/${idCliente}`)
             .update({
-                xp: proxNivel
+                xp: xp
             })
     }
-    else if (statusXp == "ataulizarNv") {
+    else if (statusXp == "atualizarNv") {
         database.ref(`servidores/niveis/${idServidor}/${idCliente}`)
             .update({
                 nivel: proxNivel
@@ -30,17 +30,17 @@ function setXp(idServidor, idCliente, statusXp, qntXp) {
 }
 
 
-function setGold(idCliente, tipo, valorOuro) {
+exports.setGold = function setGold(idCliente, tipo, valorOuro) {
     if (tipo == "add") {
         database.ref(`${idCliente}`)
             .update({
-                ouro: bot.ouro + valorOuro
+                ouro: ouro + valorOuro
             })
     }
     else {
         database.ref(`${idCliente}`)
             .update({
-                ouro: bot.ouro - valorOuro
+                ouro: ouro - valorOuro
             })
     }
 }

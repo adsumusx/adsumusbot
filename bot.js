@@ -16,7 +16,7 @@ var configBase = {
     appId: "1:1073172880535:web:7e39fc4c96e368de"
 };
 firebase.initializeApp(configBase);
-const database = firebase.database();
+global.database = firebase.database();
 
 global.prefix = '';
 global.xp = '';
@@ -37,7 +37,7 @@ client.on("message", async message => {
     const idBot = config.id_bot == idCliente
     if (!idBot) {
         setTimeout(function () {
-            getXp(message, idCliente)
+            getBanco.getXp(message, idCliente)
         }, 300);
     }
     if (message.author.bot) return;
@@ -53,7 +53,7 @@ client.on("message", async message => {
     }
 
     if (comando === "nivel" || comando === "level" || comando === "nv" || comando === "lv") {
-        getXp(idCliente);
+        getBanco.getXp(message, idCliente);
         setTimeout(function () {
             message.channel.send(` Seu nivel é -> ${nivel}`);
         }, 300);
@@ -85,7 +85,7 @@ client.on("message", async message => {
             }
 
             setTimeout(function () {
-                getGold(idCliente);
+                getBanco.getGold(idCliente);
             }, 300);
 
             if (ouro < valorAposta) {
@@ -102,11 +102,11 @@ client.on("message", async message => {
             }
 
             if (ladoMoeda == resultado) {
-                setGold(idCliente, "add", valorAposta)
+                setBanco.setGold(idCliente, "add", valorAposta)
                 message.channel.send(`Deu ${resultado} Você ganhou!`)
             }
             else {
-                setGold(idCliente, "remover", valorAposta)
+                setBanco.setGold(idCliente, "remover", valorAposta)
                 message.channel.send(`Deu ${resultado} Você perdeu!`)
             }
         }
@@ -123,7 +123,7 @@ client.on("message", async message => {
 
     }
     if (comando === "ouro" || comando === "gold") {
-        getGold(idCliente);
+        getBanco.getGold(idCliente);
 
         setTimeout(function () {
             message.channel.send(`Sua riqueza é de R$${ouro}.00`);
@@ -165,88 +165,3 @@ client.on("message", async message => {
 });
 
 client.login(config.token);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function getXp(message, idCliente) {
-    let addPontos = Math.floor(Math.random() * 7) + 8;
-    database.ref(`servidores/niveis/${message.guild.id}/${idCliente}`).once('value').then(async function (data) {
-        if (data.val() == null) {
-            setXp(message.guild.id, idCliente, "null", 0)
-        }
-        else {
-            xp = data.val().xp + addPontos;
-            nivel = data.val().nivel;
-            proxNivel = data.val().nivel * 500;
-            setTimeout(function () {
-                setXp(message.guild.id, idCliente, "atualizarXp", xp);
-            }, 300);
-        }
-        if (proxNivel <= xp) {
-            proxNivel = data.val().nivel + 1
-            await message.channel.send(` ${message.author.username} subiu para o nivel ${data.val().nivel + 1}!`)
-            setXp(message.guild.id, idCliente, "atualizarNv", xp)
-        }
-    });
-}
-
-function getGold(idCliente) {
-    database.ref(`${idCliente}`).once('value').then(async function (data) {
-        if (data.val() == null) {
-            setGold(idCliente);
-        }
-        else {
-            ouro = data.val().ouro
-        }
-    });
-}
-
-function setXp(idServidor, idCliente, statusXp) {
-    if (statusXp == "null") {
-        database.ref(`servidores/niveis/${idServidor}/${idCliente}`)
-            .set({
-                xp: 0,
-                nivel: 1,
-                ouro: 100,
-            });
-    }
-    else if (statusXp == "atualizarXp") {
-        database.ref(`servidores/niveis/${idServidor}/${idCliente}`)
-            .update({
-                xp: xp
-            })
-    }
-    else if (statusXp == "atualizarNv") {
-        database.ref(`servidores/niveis/${idServidor}/${idCliente}`)
-            .update({
-                nivel: proxNivel
-            })
-    }
-}
-
-
-function setGold(idCliente, tipo, valorOuro) {
-    if (tipo == "add") {
-        database.ref(`${idCliente}`)
-            .update({
-                ouro: ouro + valorOuro
-            })
-    }
-    else {
-        database.ref(`${idCliente}`)
-            .update({
-                ouro: ouro - valorOuro
-            })
-    }
-}

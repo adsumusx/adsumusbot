@@ -5,40 +5,37 @@ const firebase = require("firebase");
 const bot = require("./bot.js");
 const setBanco = require("./setAndUpdateBanco.js");
 
-exports.teste = function teste1 (a) {
-    return a;
-}
-
-
-
-function getXp(idServidor, idCliente) {
-    database.ref(`servidores/niveis/${idServidor}/${idCliente}`).once('value').then(async function (data) {
+exports.getXp = function getXp (message, idCliente) {
+    let addPontos = Math.floor(Math.random() * 7) + 8;
+    database.ref(`servidores/niveis/${message.guild.id}/${idCliente}`).once('value').then(async function (data) {
         if (data.val() == null) {
-            setBando.setXp(idServidor, idCliente, "null", 0)
+            setBanco.setXp(message.guild.id, idCliente, "null", 0)
         }
         else {
-            bot.xp = data.val().xp + addPontos;
-            bot.nivel = data.val().nivel;
-            bot.proxNivel = data.val().nivel * 500;
-            setBanco.setXp(idServidor, idCliente, "atualizarXp", bot.xp)
+            xp = data.val().xp + addPontos;
+            nivel = data.val().nivel;
+            proxNivel = data.val().nivel * 500;
+            setTimeout(function () {
+                setBanco.setXp(message.guild.id, idCliente, "atualizarXp", xp);
+            }, 300);
         }
-        if (bot.proxNivel <= bot.xp) {
-            bot.proxNivel = data.val().nivel + 1
-            setBanco.setXp(idServidor, idCliente, "atualizarNv", bot.xp)
-            await message.channel.send(` ${bot.messagem.author.username} subiu de nivel!`)
+        if (proxNivel <= xp) {
+            proxNivel = data.val().nivel + 1
+            await message.channel.send(` ${message.author.username} subiu para o nivel ${data.val().nivel + 1}!`)
+            setBanco.setXp(message.guild.id, idCliente, "atualizarNv", xp)
         }
-        let addPontos = Math.floor(Math.random() * 7) + 8;
     });
 }
 
-function getGold(idCliente) {
-    database.ref(`${idCliente}`)
-        .once('value').then(async function (data) {
-            if (data.val() == null) {
-                setBanco.setGold(idCliente);
-            }
-            else {
-                bot.ouro = data.val().ouro
-            }
-        });
+
+
+exports.getGold = function getGold(idCliente) {
+    database.ref(`${idCliente}`).once('value').then(async function (data) {
+        if (data.val() == null) {
+            setBanco.setGold(idCliente);
+        }
+        else {
+            ouro = data.val().ouro
+        }
+    });
 }
