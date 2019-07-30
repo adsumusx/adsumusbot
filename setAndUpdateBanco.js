@@ -4,7 +4,7 @@ const config = require("./config.json");
 const getBanco = require("./getBanco.js");
 
 
-exports.setXp = function setXp(idServidor, idCliente, statusXp) {
+exports.setXp = async function setXp(idServidor, idCliente, statusXp) {
     try {
         if (statusXp == "null") {
             database.ref(`servidores/niveis/${idServidor}/${idCliente}`)
@@ -33,25 +33,21 @@ exports.setXp = function setXp(idServidor, idCliente, statusXp) {
 }
 
 
-exports.setGold = function setGold(idCliente, tipo, valorOuro) {
+exports.setGold = async function setGold(idCliente, tipo, valorOuro) {
     try {
-        getBanco.getGold(idCliente);
-        setTimeout(function () {
-            console.log(idCliente, ouro)
-            if (tipo == "add") {
-                database.ref(`${idCliente}`)
-                    .update({
-                        ouro: ouro + valorOuro
-                    })
-            }
-            else if (tipo == "remover") {
-                database.ref(`${idCliente}`)
-                    .update({
-                        ouro: ouro - valorOuro
-                    })
-            }
-        }, 300);
-
+        await getBanco.getGold(idCliente);
+        if (tipo == "add") {
+            database.ref(`${idCliente}`)
+                .update({
+                    ouro: ouro + valorOuro
+                })
+        }
+        else if (tipo == "remover") {
+            database.ref(`${idCliente}`)
+                .update({
+                    ouro: ouro - valorOuro
+                })
+        }
     } catch (error) {
 
     }

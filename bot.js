@@ -21,7 +21,7 @@ global.database = firebase.database();
 global.prefix = '';
 global.xp = '';
 global.proxNivel = '';
-global.ouro = 100;
+global.ouro = '';
 global.nivel = '';
 global.messagem = '';
 
@@ -38,9 +38,7 @@ client.on("message", async message => {
 
     //Atribuir  xp pela mensagem do usuario (Ignorando o bot)
     if (!idBot) {
-        setTimeout(function () {
-            getBanco.getXp(message, idCliente)
-        }, 300);
+        getBanco.getXp(message, idCliente)
     }
 
     if (message.author.bot) return;
@@ -67,7 +65,10 @@ client.on("message", async message => {
 
     //Comando !xp (Verifica a quantidade de experiencia que o usuario tem)
     if (comando === "xp" || comando === "experiencia") {
-        message.channel.send(` Sua experiencia é -> ${xp}`);
+        getBanco.getXp(message, idCliente);
+        setTimeout(function () {
+            message.channel.send(` Sua experiencia é -> ${xp}`);
+        }, 300);
     }
 
     //Comando !ajuda (Retorna todos comandos)
@@ -92,9 +93,7 @@ client.on("message", async message => {
                 throw "moeda";
             }
 
-            setTimeout(function () {
-                getBanco.getGold(idCliente);
-            }, 300);
+            await getBanco.getGold(idCliente);
 
             if (ouro < valorAposta) {
                 throw "dinheiro";
@@ -179,24 +178,19 @@ client.on("message", async message => {
         try {
             var valor = message.content.substr(12).split(' ');
             var valorTrans = parseInt(valor[0]);
-            var idReceber = valor[1].replace("<@!", "").replace(">", "");
+            var idRecebedor = valor[1].replace("<@!", "").replace(">", "");
 
-            if (idReceber.length != 18) {
+            if (idRecebedor.length != 18) {
                 throw "usuario";
             }
 
-            setTimeout(function () {
-                    getBanco.getGold(idCliente);
-                    if (ouro < valorTrans) {
-                        throw "dinheiro";
-                    }
-            }, 300);
 
-            setTimeout(function () {
-                setBanco.setGold(idCliente, "remover", valorTrans)
-            }, 300);
-
-            setBanco.setGold(idReceber, "add", valorTrans)
+            await getBanco.getGold(idCliente);
+            if (ouro < valorTrans) {
+                throw "dinheiro";
+            }
+            await setBanco.setGold(idCliente, "remover", valorTrans)
+            await setBanco.setGold(idRecebedor, "add", valorTrans)
             message.channel.send(`${message.author.username} transferiu com sucesso *R$${valorTrans}* para ${valor[1]}`)
 
         } catch (error) {
@@ -204,7 +198,7 @@ client.on("message", async message => {
                 message.channel.send(`Você é pobre lhe falta dinheiro! `)
             }
             else if (error === "usuario") {
-                message.channel.send(`Você não marcou nenhum usuario, use '@nomedousuario' . `)
+                message.channel.send(`Você não marcou nenhum usuario, use '@nome_do_usuario' . `)
             }
             else {
                 message.channel.send(`Repita o comando de forma correta -> "!transferir x @y substituindo x pela quantia que irá tranferir e y marcando a pessoa que deseja transferir.`)
