@@ -1,8 +1,5 @@
 const Discord = require("discord.js");
-const client = new Discord.Client();
 const config = require("./config.json");
-const firebase = require("firebase");
-const bot = require("./bot.js");
 const setBanco = require("./setAndUpdateBanco.js");
 
 exports.getXp = function getXp (message, idCliente) {
