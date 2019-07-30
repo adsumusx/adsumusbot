@@ -5,6 +5,12 @@ const firebase = require("firebase");
 const bot = require("./bot.js");
 const setBanco = require("./setAndUpdateBanco.js");
 
+exports.teste = function teste1 (a) {
+    return a;
+}
+
+
+
 function getXp(idServidor, idCliente) {
     database.ref(`servidores/niveis/${idServidor}/${idCliente}`).once('value').then(async function (data) {
         if (data.val() == null) {

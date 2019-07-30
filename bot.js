@@ -2,7 +2,7 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 const config = require("./config.json");
 const firebase = require("firebase");
-const getBanco = require("./getBanco.js")
+const getBanco = require("./getBanco.js");
 const setBanco = require("./setAndUpdateBanco.js")
 //ADICIONE UM 8 NO ARQUIVO CONFIG.JSON NO FIM DO TOKEN PARA FUNCIONAR
 //Configurações do firebase-
@@ -193,7 +193,6 @@ function getXp(message, idCliente) {
                 setXp(message.guild.id, idCliente, "atualizarXp", xp);
             }, 300);
         }
-        console.log(proxNivel, xp);
         if (proxNivel <= xp) {
             proxNivel = data.val().nivel + 1
             await message.channel.send(` ${message.author.username} subiu para o nivel ${data.val().nivel + 1}!`)
@@ -204,7 +203,6 @@ function getXp(message, idCliente) {
 
 function getGold(idCliente) {
     database.ref(`${idCliente}`).once('value').then(async function (data) {
-        console.log(data.val())
         if (data.val() == null) {
             setGold(idCliente);
         }
