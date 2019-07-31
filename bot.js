@@ -4,7 +4,6 @@ const client = new Discord.Client();
 const config = require("./config.json");
 const firebase = require("firebase");
 const getBanco = require("./getBanco.js");
-const Canvas = require('canvas');
 const setBanco = require("./setBanco.js")
 //ADICIONE UM TOKEN NO ARQUIVO CONFIG.JSON PARA FUNCIONAR 'M'
 //Configurações do firebase-
@@ -23,6 +22,7 @@ global.database = firebase.database();
 global.prefix = '';
 global.xp = '';
 global.proxNivel = '';
+global.proxNivelNpc = '';
 global.ouro = '';
 global.nivel = '';
 global.messagem = '';
@@ -30,6 +30,9 @@ global.idCliente = '';
 global.xpNpc = '';
 global.nivelNpc = '';
 global.nomeNpc = '';
+global.vida = '';
+global.dano = '';
+global.estamina = '';
 
 client.on("ready", () => {
     console.log(`Bot foi iniciado`);
@@ -140,11 +143,10 @@ client.on("message", async message => {
     if (comando === "ouro" || comando === "gold") {
         await getBanco.getGold(idCliente);
         setTimeout(function () {
-            console.log(ouro, ouro.length)
             if (ouro.length == 0 && ouro.length != undefined) {
                 message.channel.send(`Você não possui nenhum personagem, tente usar o comando !criar`);
             }
-            else{
+            else {
                 message.channel.send(`Sua riqueza é de R$${ouro}`);
             }
         }, 300);
@@ -233,8 +235,8 @@ client.on("message", async message => {
     if (comando === "criar") {
         try {
             var valor = message.content.substr(7).split(' ');
-            var nomeNpc = valor[0];
-            if(valor.length > 2){
+            nomeNpc = valor[0];
+            if (valor.length > 2) {
                 throw "espaco";
             }
             if (nomeNpc.length > 0) {
@@ -246,10 +248,10 @@ client.on("message", async message => {
             }
         } catch (error) {
             // client.logger.error(error.stack);
-            if (error === "nomeNpmc") {
+            if (error === "nomeNpc") {
                 return message.channel.send(`Adicione um nome de personagem valido`);
             }
-            else if(error === "espaco"){
+            else if (error === "espaco") {
                 return message.channel.send(`Não adicione espaços no nome do personagem`);
             }
             else {
@@ -257,7 +259,64 @@ client.on("message", async message => {
             }
         }
     }
-
+    //Comando !batalha (personagem do usuario combate um NPC aleatorio)
+    if (comando === "batalha" || comando === "combate") {
+        try {
+            await getBanco.getNpc(message, idCliente);
+            var valor = message.content.substr(9).split(' ');
+            var dificuldade = parseInt(valor[1]);
+            if (ouro.length == 0 && ouro.length != undefined) {
+                throw "semPersonagem";
+            }
+            else {
+                if (dificuldade > 0) {
+                    let danoInimigo = 1 + dificuldade + nivelNpc;
+                    let vidaInimigo = 2 * nivelNpc + dificuldade;
+                    proxNivelNpc = Math.pow(nivelNpc, 3) + 10;
+                    if (estamina > 0) {
+                        while (vida > 0 && vidaInimigo > 0) {
+                            let atk = Math.floor(Math.random() * dano) + 1
+                            vidaInimigo = vidaInimigo - atk
+                            if (vidaInimigo > 0) {
+                                let atkInimigo = Math.floor(Math.random() * danoInimigo) + 1
+                                vida = vida - atkInimigo
+                            }
+                        }
+                        
+                        if (vidaInimigo <= 0 || vida > 0) {
+                            xpNpc = xpNpc + Math.floor(Math.random() * dificuldade)+1 * vida / nivelNpc;
+                            xpNpc = Math.round(xpNpc);
+                            message.channel.send(`${nomeNpc} acaba de **GANHAR** uma épica batalha contra um monstro de nivel ${dificuldade}`)
+                        }
+                        else {
+                            message.channel.send(`${nomeNpc} acaba de **PERDER** uma épica batalha contra um monstro de nivel ${dificuldade}`);
+                        }
+                        estamina--;
+                        await setBanco.setNpc(idCliente, "atualizarNpc", nomeNpc);
+                        if (proxNivelNpc <= xpNpc) {
+                            nivelNpc ++;
+                            message.channel.send(` ${nomeNpc} subiu para o nivel ${nivelNpc}!`)
+                            await setBanco.setNpc(idCliente, "atualizarNv", nomeNpc);
+                        }
+                        
+                    }
+                    else {
+                        throw "estamina"
+                    }
+                }
+                else {
+                    throw "dificuldade";
+                }
+            }
+        } catch (error) {
+            if (error == "dificuldade") {
+                message.channel.send(`Repita o comando de forma correta -> !batalha nv x substituindo x pelo nivel de dificuldade`)
+            }
+            if (error == "estamina") {
+                message.channel.send(`Você não tem estamina suficiente para combater`)
+            }
+        }
+    }
 });
 
 client.login(config.token);

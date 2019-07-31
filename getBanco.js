@@ -26,9 +26,9 @@ exports.getXp = async function (message, idCliente) {
 }
 
 exports.getNpc = async function (message, idCliente) {
-    database.ref(`${idCliente}`).once('value').then(async function (data) {
+    await database.ref(`${idCliente}`).once('value').then(async function (data) {
         if (data.val() == null) {
-            await setBanco.setNpc(idCliente, "null")
+            message.channel.send(`Você não possui nenhum personagem, tente usar o comando !criar`);
         }
         else {
             nomeNpc = data.val().nomeNpc;
@@ -36,15 +36,8 @@ exports.getNpc = async function (message, idCliente) {
             ouro = data.val().ouro;
             xpNpc = data.val().xpNpc;
             dano = data.val().dano;
-            vida = data().vida;
-            estamina = data().estamina;
-            proxNivel = data.val().nivel * 500;
-            await setBanco.setNpc(idCliente, "atualizarXp");
-        }
-        if (proxNivel <= xp) {
-            proxNivel = data.val().nivel + 1
-            message.channel.send(` ${message.author.username} subiu para o nivel ${data.val().nivel + 1}!`)
-            await setBanco.setNpc(message.guild.id, idCliente, "atualizarNv")
+            vida = data.val().vida;
+            estamina = data.val().estamina;
         }
     });
 }
@@ -52,13 +45,12 @@ exports.getNpc = async function (message, idCliente) {
 
 
 exports.getGold = async function (idCliente) {
-    database.ref(`${idCliente}`).once('value').then(async function (data) {
+    await database.ref(`${idCliente}`).once('value').then(async function (data) {
         if (data.val() == null) {
             ouro = '';
         }
         else {
             ouro = data.val().ouro
-            console.log(ouro)
         }
     });
 }

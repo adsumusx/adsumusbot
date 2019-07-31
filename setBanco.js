@@ -55,11 +55,19 @@ exports.setNpc = async function (idCliente, statusNpc, nomeNpc) {
         else if (statusNpc == "atualizarNv") {
             database.ref(`${idCliente}`)
                 .update({
-                    nivelNpc: proxNivel,
+                    nivelNpc: nivelNpc,
                     xpNpc: xpNpc,
                     dano: dano + 2,
-                    vida: vida + 3,
-                    estamina: estamina + 1
+                    vida: nivelNpc * 2 + 10,
+                    estamina: nivelNpc * 2 + 2
+                })
+        }
+        else if (statusNpc == "atualizarNpc") {
+            database.ref(`${idCliente}`)
+                .update({
+                    ouro: ouro,
+                    xpNpc: xpNpc,
+                    estamina: estamina
                 })
         }
     } catch (error) {
