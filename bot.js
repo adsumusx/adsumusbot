@@ -1,8 +1,10 @@
 const Discord = require("discord.js");
+const { Attachment } = require('discord.js');
 const client = new Discord.Client();
 const config = require("./config.json");
 const firebase = require("firebase");
 const getBanco = require("./getBanco.js");
+const Canvas = require('canvas');
 const setBanco = require("./setAndUpdateBanco.js")
 //ADICIONE UM 8 NO ARQUIVO CONFIG.JSON NO FIM DO TOKEN PARA FUNCIONAR
 //Configurações do firebase-
@@ -24,6 +26,7 @@ global.proxNivel = '';
 global.ouro = '';
 global.nivel = '';
 global.messagem = '';
+global.idCliente = '';
 
 client.on("ready", () => {
     console.log(`Bot foi iniciado`);
@@ -32,7 +35,7 @@ client.on("ready", () => {
 
 client.on("message", async message => {
     messagem = message;
-    const idCliente = message.author.id;
+    idCliente = message.author.id;
     const adsumus = config.adsumus == idCliente;
     const idBot = config.id_bot == idCliente
 
@@ -204,6 +207,18 @@ client.on("message", async message => {
                 message.channel.send(`Repita o comando de forma correta -> "!transferir x @y substituindo x pela quantia que irá tranferir e y marcando a pessoa que deseja transferir.`)
             }
         }
+    }
+    //Comando !perfil (Mostra perfil do usuario - nome/xp/nivel/gold)
+    if(comando === "perfil" || comando === "profile"){
+        try {
+            const buffer = await getBanco.getProfile(message);
+            const filename = `profile-${message.author.id}.jpg`;
+            const attachment = new Attachment(buffer, filename);
+            await message.channel.send(attachment);
+          } catch (error) {
+            // client.logger.error(error.stack);
+            return message.channel.send(`Deu erro zé ruela`);
+          }
     }
 
 });
