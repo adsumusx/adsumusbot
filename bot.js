@@ -8,13 +8,13 @@ const setBanco = require("./setBanco.js")
 //ADICIONE UM TOKEN NO ARQUIVO CONFIG.JSON PARA FUNCIONAR 'M'
 //Configurações do firebase-
 var configBase = {
-    apiKey: "AIzaSyA0gYRZa9J3dj1pcoJq2posSOSs6WTwzb4",
-    authDomain: "adsumus-bot.firebaseapp.com",
-    databaseURL: "https://adsumus-bot.firebaseio.com",
-    projectId: "adsumus-bot",
-    storageBucket: "adsumus-bot.appspot.com",
-    messagingSenderId: "1073172880535",
-    appId: "1:1073172880535:web:7e39fc4c96e368de"
+    apiKey: "",
+    authDomain: "",
+    databaseURL: "",
+    projectId: "",
+    storageBucket: "",
+    messagingSenderId: "",
+    appId: ""
 };
 firebase.initializeApp(configBase);
 global.database = firebase.database();
