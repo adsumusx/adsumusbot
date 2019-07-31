@@ -5,8 +5,8 @@ const config = require("./config.json");
 const firebase = require("firebase");
 const getBanco = require("./getBanco.js");
 const Canvas = require('canvas');
-const setBanco = require("./setAndUpdateBanco.js")
-//ADICIONE UM 8 NO ARQUIVO CONFIG.JSON NO FIM DO TOKEN PARA FUNCIONAR
+const setBanco = require("./setBanco.js")
+//ADICIONE UM TOKEN NO ARQUIVO CONFIG.JSON PARA FUNCIONAR 'M'
 //Configurações do firebase-
 var configBase = {
     apiKey: "AIzaSyA0gYRZa9J3dj1pcoJq2posSOSs6WTwzb4",
@@ -27,6 +27,9 @@ global.ouro = '';
 global.nivel = '';
 global.messagem = '';
 global.idCliente = '';
+global.xpNpc = '';
+global.nivelNpc = '';
+global.nomeNpc = '';
 
 client.on("ready", () => {
     console.log(`Bot foi iniciado`);
@@ -135,9 +138,15 @@ client.on("message", async message => {
 
     //Comando !ouro (Verifica quantidade de ouro do usuario.)
     if (comando === "ouro" || comando === "gold") {
-        getBanco.getGold(idCliente);
+        await getBanco.getGold(idCliente);
         setTimeout(function () {
-            message.channel.send(`Sua riqueza é de R$${ouro}`);
+            console.log(ouro, ouro.length)
+            if (ouro.length == 0 && ouro.length != undefined) {
+                message.channel.send(`Você não possui nenhum personagem, tente usar o comando !criar`);
+            }
+            else{
+                message.channel.send(`Sua riqueza é de R$${ouro}`);
+            }
         }, 300);
     }
 
@@ -209,16 +218,44 @@ client.on("message", async message => {
         }
     }
     //Comando !perfil (Mostra perfil do usuario - nome/xp/nivel/gold)
-    if(comando === "perfil" || comando === "profile"){
+    if (comando === "perfil" || comando === "profile") {
         try {
             const buffer = await getBanco.getProfile(message);
             const filename = `profile-${message.author.id}.jpg`;
             const attachment = new Attachment(buffer, filename);
             await message.channel.send(attachment);
-          } catch (error) {
+        } catch (error) {
             // client.logger.error(error.stack);
             return message.channel.send(`Deu erro zé ruela`);
-          }
+        }
+    }
+    //Comando !criar (criar novo personagem)
+    if (comando === "criar") {
+        try {
+            var valor = message.content.substr(7).split(' ');
+            var nomeNpc = valor[0];
+            if(valor.length > 2){
+                throw "espaco";
+            }
+            if (nomeNpc.length > 0) {
+                await setBanco.setNpc(idCliente, "null", nomeNpc);
+                message.channel.send(`Personagem *${nomeNpc}* criado com sucesso`)
+            }
+            else {
+                throw "nomeNpc";
+            }
+        } catch (error) {
+            // client.logger.error(error.stack);
+            if (error === "nomeNpmc") {
+                return message.channel.send(`Adicione um nome de personagem valido`);
+            }
+            else if(error === "espaco"){
+                return message.channel.send(`Não adicione espaços no nome do personagem`);
+            }
+            else {
+                return message.channel.send(`Repita o comando de forma certa -> !criar nome_personagem`);
+            }
+        }
     }
 
 });
