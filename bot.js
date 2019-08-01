@@ -154,7 +154,7 @@ client.on("message", async message => {
 
     //Comando !dado (rola a quantia de dados que o usuario quiser)
     // if (!adsumus && comando === "dado" || comando === "roll") {
-    if (comando === "dado" || comando === "roll") {
+    if (comando === "dado" || comando === "roll" ||  comando === "r" || comando === "d") {
         try {
             let valor = message.content.substr(5);
             let rolagem = valor.split('d');
@@ -220,7 +220,7 @@ client.on("message", async message => {
         }
     }
     //Comando !perfil (Mostra perfil do usuario - nome/xp/nivel/gold)
-    if (comando === "perfil" || comando === "profile") {
+    if (comando === "perfil" || comando === "profile" || comando === "p") {
         try {
             const buffer = await getBanco.getProfile(message);
             const filename = `profile-${message.author.id}.jpg`;
@@ -234,11 +234,7 @@ client.on("message", async message => {
     //Comando !criar (criar novo personagem)
     if (comando === "criar") {
         try {
-            var valor = message.content.substr(7).split(' ');
-            nomeNpc = valor[0];
-            if (valor.length > 2) {
-                throw "espaco";
-            }
+            var nomeNpc = message.content.substr(7);
             if (nomeNpc.length > 0) {
                 await setBanco.setNpc(idCliente, "null", nomeNpc);
                 message.channel.send(`Personagem *${nomeNpc}* criado com sucesso`)
@@ -250,9 +246,6 @@ client.on("message", async message => {
             // client.logger.error(error.stack);
             if (error === "nomeNpc") {
                 return message.channel.send(`Adicione um nome de personagem valido`);
-            }
-            else if (error === "espaco") {
-                return message.channel.send(`Não adicione espaços no nome do personagem`);
             }
             else {
                 return message.channel.send(`Repita o comando de forma certa -> !criar nome_personagem`);
