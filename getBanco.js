@@ -2,32 +2,24 @@ const Discord = require("discord.js");
 const config = require("./config.json");
 const setBanco = require("./setBanco.js");
 const { Canvas } = require('canvas-constructor');
+const CanvasImage = require('canvas');
 const fetch = require('node-fetch');
 
 exports.getXp = async function (message, idCliente) {
-
-    let addPontos = Math.floor(Math.random() * 7) + 8;
-    database.ref(`servidores/niveis/${message.guild.id}/${idCliente}`).once('value').then(async function (data) {
-        if (data.val() == null) {
-            await setBanco.setXp(message.guild.id, idCliente, "null", 0)
+    await database.ref(`${idCliente}`).once('value').then(async function (data) {
+        if (data != null) {
+            xpNpc = data.val().xpNpc;
+            nivelNpc = data.val().nivelNpc;
         }
         else {
-            xp = data.val().xp + addPontos;
-            nivel = data.val().nivel;
-            proxNivel = data.val().nivel * 500;
-            await setBanco.setXp(message.guild.id, idCliente, "atualizarXp", xp);
-        }
-        if (proxNivel <= xp) {
-            proxNivel = data.val().nivel + 1
-            message.channel.send(` ${message.author.username} subiu para o nivel ${data.val().nivel + 1}!`)
-            await setBanco.setXp(message.guild.id, idCliente, "atualizarNv", xp)
+            message.channel.send(`Você não possui nenhum personagem, tente usar o comando !criar`);
         }
     });
 }
 
 exports.getNpc = async function (message, idCliente) {
     await database.ref(`${idCliente}`).once('value').then(async function (data) {
-        if (data.val() == null) {
+        if (data.val().nomeNpc == null) {
             message.channel.send(`Você não possui nenhum personagem, tente usar o comando !criar`);
         }
         else {
@@ -64,33 +56,41 @@ exports.getProfile = async function (message) {
             const result = await fetch(member.user.displayAvatarURL.replace(imageUrlRegex, '?size=128'));
             if (!result.ok) throw new Error('Failed to get the avatar!');
             const avatar = await result.buffer();
-
-            return new Canvas(400, 180)
-                .setColor('#7289DA')
-                .addRect(84, 0, 316, 180)
-                .setColor("#2C2F33")
-                .addRect(0, 0, 84, 180)
-                .addRect(169, 26, 231, 46)
-                .addRect(224, 108, 176, 46)
+            const background = await CanvasImage.loadImage("./assets/imgs/caverna.jpg");
+            return new Canvas(800, 455)
+                // .setColor('#7289DA')
+                // .addRect(200, 0, 500, 280)
+                // .setColor("#2C2F33")
+                // .addRect(0, 0, 200, 280)
+                //1 da segunda parte
+                // .addRect(100, 26, 231, 46)
+                //2 da segunda parte
+                // x y z h: x =
+                .addRect(100, 108, 176, 46)
                 .setShadowColor('rgba(22, 22, 22, 1)')
                 .setShadowOffsetY(5)
                 .setShadowBlur(10)
-                .addCircle(84, 90, 62)
-                .addCircularImage(avatar, 85, 90, 64)
+                .addCircle(100, 115, 100)
+                // x y z - y = altura
+                .addImage(background, 1, 1)
+                .addCircularImage(avatar, 170, 160, 100)
                 .save()
-                .createBeveledClip(20, 138, 128, 32, 5)
+                .createBeveledClip(70, 1, 1, 40, 5)
                 .setColor('#23272A')
                 .fill()
                 .restore()
                 .setTextAlign('center')
                 // .setTextFont("font-family='Arial'")
-                .setTextSize(16)
+                .setTextSize(30)
                 .setColor('#FFFFFF')
-                .addText(nomeNpc, 285, 54)
-                .addText(`Nivel: ${nivelNpc}`, 84, 159)
+                .addText(nomeNpc, 170, 295)
                 .setTextAlign('left')
-                .addText(`Experiência: ${xpNpc}`, 250, 125)
-                .addText(`Ouro: ${ouro}`, 250, 145)
+                .addText(`Nivel: ${nivelNpc}`, 320, 100)
+                .addText(`Experiência: ${xpNpc}`, 320, 140)
+                .addText(`Dano: ${dano}`, 320, 180)
+                .addText(`Vida: ${vida}`, 320, 220)
+                .addText(`Estamina: ${estamina}`, 320, 260)
+                .addText(`Ouro: ${ouro}`, 320, 300)
                 .toBuffer();
         }
         catch (error) {

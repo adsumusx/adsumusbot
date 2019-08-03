@@ -5,26 +5,24 @@ const config = require("./config.json");
 const firebase = require("firebase");
 const getBanco = require("./getBanco.js");
 const setBanco = require("./setBanco.js")
+const sleep = require("./sleep.js")
+//ADICIONE UM TOKEN NO ARQUIVO CONFIG.JSON PARA FUNCIONAR 'M'
 //ADICIONE UM TOKEN NO ARQUIVO CONFIG.JSON PARA FUNCIONAR 'M'
 //Configurações do firebase-
 var configBase = {
-    apiKey: "",
-    authDomain: "",
-    databaseURL: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
+    apiKey: "AIzaSyA0gYRZa9J3dj1pcoJq2posSOSs6WTwzb4",
+    authDomain: "adsumus-bot.firebaseapp.com",
+    databaseURL: "https://adsumus-bot.firebaseio.com",
+    projectId: "adsumus-bot",
+    storageBucket: "adsumus-bot.appspot.com",
+    messagingSenderId: "1073172880535",
+    appId: "1:1073172880535:web:7e39fc4c96e368de"
 };
 firebase.initializeApp(configBase);
 global.database = firebase.database();
-
 global.prefix = '';
-global.xp = '';
-global.proxNivel = '';
 global.proxNivelNpc = '';
 global.ouro = '';
-global.nivel = '';
 global.messagem = '';
 global.idCliente = '';
 global.xpNpc = '';
@@ -36,19 +34,12 @@ global.estamina = '';
 
 client.on("ready", () => {
     console.log(`Bot foi iniciado`);
-    client.user.setGame(`XanFrango`);
+    client.user.setGame(`IDLE RPG`);
 })
 
 client.on("message", async message => {
     messagem = message;
     idCliente = message.author.id;
-    const adsumus = config.adsumus == idCliente;
-    const idBot = config.id_bot == idCliente
-
-    //Atribuir  xp pela mensagem do usuario (Ignorando o bot)
-    if (!idBot) {
-        getBanco.getXp(message, idCliente)
-    }
 
     if (message.author.bot) return;
     if (message.channel.type === "dm") return;
@@ -68,7 +59,7 @@ client.on("message", async message => {
     if (comando === "nivel" || comando === "level" || comando === "nv" || comando === "lv") {
         getBanco.getXp(message, idCliente);
         setTimeout(function () {
-            message.channel.send(` Seu nivel é -> ${nivel}`);
+            message.channel.send(` Seu nivel é -> ${nivelNpc}`);
         }, 300);
     }
 
@@ -76,28 +67,28 @@ client.on("message", async message => {
     if (comando === "xp" || comando === "experiencia") {
         getBanco.getXp(message, idCliente);
         setTimeout(function () {
-            message.channel.send(` Sua experiencia é -> ${xp}`);
+            message.channel.send(` Sua experiencia é -> ${xpNpc}`);
         }, 300);
     }
 
     //Comando !ajuda (Retorna todos comandos)
     if (comando === "ajuda" || comando === "help") {
-        message.channel.send(` Nossos comandos são: "!ping", "!dado" , "!nivel", "!xp", "!moeda", "!gold" `)
+        message.channel.send(` Nossos comandos são: "!ping", "!dado" , "!nivel", "!xp", "!moeda", "!ouro" , "!perfil", "!criar", "!transferir", "!batalha" `)
     }
 
     //Comando !flip (Aposta em um lado da moeda)
     if (comando === "coin" || comando === "moeda" || comando === "flip") {
         try {
             if (comando === "moeda") {
-                var aposta = message.content.substr(7).split(' ');
+                var aposta = message.content.substr(8).split(' ');
             }
             else {
-                var aposta = message.content.substr(6).split(' ');
+                aposta = message.content.substr(7).split(' ');
             }
 
             const valorAposta = parseInt(aposta[1]);
             const ladoMoeda = aposta[0].toLowerCase();
-
+            console.log(aposta)
             if (ladoMoeda != "cara" && ladoMoeda != "coroa") {
                 throw "moeda";
             }
@@ -154,9 +145,9 @@ client.on("message", async message => {
 
     //Comando !dado (rola a quantia de dados que o usuario quiser)
     // if (!adsumus && comando === "dado" || comando === "roll") {
-    if (comando === "dado" || comando === "roll" ||  comando === "r" || comando === "d") {
+    if (comando === "dado" || comando === "roll" || comando === "r" || comando === "d") {
         try {
-            let valor = message.content.substr(5);
+            let valor = message.content.substr(6);
             let rolagem = valor.split('d');
             let total;
             if (rolagem.length == 2) {
@@ -190,10 +181,9 @@ client.on("message", async message => {
     //Comando !transferir (transfere gold de um usuario para outro)
     if (comando === "transferir") {
         try {
-            var valor = message.content.substr(12).split(' ');
+            var valor = message.content.substr(13).split(' ');
             var valorTrans = parseInt(valor[0]);
-            var idRecebedor = valor[1].replace("<@!", "").replace(">", "");
-
+            var idRecebedor = valor[1].replace("<@", "").replace(">", "");
             if (idRecebedor.length != 18) {
                 throw "usuario";
             }
@@ -234,7 +224,7 @@ client.on("message", async message => {
     //Comando !criar (criar novo personagem)
     if (comando === "criar") {
         try {
-            var nomeNpc = message.content.substr(7);
+            let nomeNpc = message.content.substr(7);
             if (nomeNpc.length > 0) {
                 await setBanco.setNpc(idCliente, "null", nomeNpc);
                 message.channel.send(`Personagem *${nomeNpc}* criado com sucesso`)
@@ -256,7 +246,7 @@ client.on("message", async message => {
     if (comando === "batalha" || comando === "combate") {
         try {
             await getBanco.getNpc(message, idCliente);
-            var valor = message.content.substr(9).split(' ');
+            var valor = message.content.substr(10).split(' ');
             var dificuldade = parseInt(valor[1]);
             if (ouro.length == 0 && ouro.length != undefined) {
                 throw "semPersonagem";
@@ -270,14 +260,16 @@ client.on("message", async message => {
                         while (vida > 0 && vidaInimigo > 0) {
                             let atk = Math.floor(Math.random() * dano) + 1
                             vidaInimigo = vidaInimigo - atk
+                            // message.channel.send(`${nomeNpc} deu ${dano} de dano no seu oponente, deixando-o com ${vidaInimigo} de vida!`);
                             if (vidaInimigo > 0) {
                                 let atkInimigo = Math.floor(Math.random() * danoInimigo) + 1
                                 vida = vida - atkInimigo
+                                // sleep.sleep(1300);
+                                // message.channel.send(`O terrivel monstro nivel ${dificuldade} deu ${dano} de dano no seu oponente ${nomeNpc}, deixando-o com ${vida} de vida!`);
                             }
                         }
-                        
                         if (vidaInimigo <= 0 || vida > 0) {
-                            xpNpc = xpNpc + Math.floor(Math.random() * dificuldade)+1 * vida / nivelNpc;
+                            xpNpc = xpNpc + Math.floor(Math.random() * dificuldade) + 1 * vida / nivelNpc;
                             xpNpc = Math.round(xpNpc);
                             message.channel.send(`${nomeNpc} acaba de **GANHAR** uma épica batalha contra um monstro de nivel ${dificuldade}`)
                         }
@@ -287,11 +279,11 @@ client.on("message", async message => {
                         estamina--;
                         await setBanco.setNpc(idCliente, "atualizarNpc", nomeNpc);
                         if (proxNivelNpc <= xpNpc) {
-                            nivelNpc ++;
+                            nivelNpc++;
                             message.channel.send(` ${nomeNpc} subiu para o nivel ${nivelNpc}!`)
                             await setBanco.setNpc(idCliente, "atualizarNv", nomeNpc);
                         }
-                        
+
                     }
                     else {
                         throw "estamina"
