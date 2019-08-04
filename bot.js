@@ -48,7 +48,7 @@ client.on("message", async message => {
     //Pegar comando que o usuario digitou
     const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
     const comando = args.shift().toLowerCase();
-
+    const conteudo =  message.content.substr(comando.length + config.prefix.length + 1).split(' ');
     //Comando !ping (retorna latencia da API e do BOT)
     if (comando === "ping") {
         let m = await message.channel.send("Ping?");
@@ -77,19 +77,11 @@ client.on("message", async message => {
     }
 
     //Comando !flip (Aposta em um lado da moeda)
-    if (comando === "coin" || comando === "moeda" || comando === "flip") {
+    if (comando === "coin" || comando === "moeda" || comando === "flip" || comando === "aposta") {
         try {
-            if (comando === "moeda") {
-                var aposta = message.content.substr(8).split(' ');
-            }
-            else {
-                aposta = message.content.substr(7).split(' ');
-            }
-
-            const valorAposta = parseInt(aposta[1]);
-            const ladoMoeda = aposta[0].toLowerCase();
-            console.log(aposta)
-            if (ladoMoeda != "cara" && ladoMoeda != "coroa") {
+            const valorAposta = parseInt(conteudo[1]);
+            const ladoMoeda = conteudo[0].toLowerCase();
+            if (ladoMoeda != "cara" && ladoMoeda != "coroa" &&  ladoMoeda != "heads" && ladoMoeda != "tails") {
                 throw "moeda";
             }
 
@@ -99,7 +91,7 @@ client.on("message", async message => {
                 throw "dinheiro";
             }
 
-            resultado = Math.floor(Math.random() * 2).toString();
+            let resultado = Math.floor(Math.random() * 2).toString();
 
             if (resultado === "1") {
                 resultado = "cara";
@@ -147,8 +139,8 @@ client.on("message", async message => {
     // if (!adsumus && comando === "dado" || comando === "roll") {
     if (comando === "dado" || comando === "roll" || comando === "r" || comando === "d") {
         try {
-            let valor = message.content.substr(6);
-            let rolagem = valor.split('d');
+            let valorDado = message.content.substr(comando.length + config.prefix.length + 1);
+            let rolagem = valorDado.split('d');
             let total;
             if (rolagem.length == 2) {
                 let count = 0;
@@ -160,10 +152,10 @@ client.on("message", async message => {
                 }
             }
             else {
-                total = Math.floor(Math.random() * valor) + 1;
+                total = Math.floor(Math.random() * conteudo) + 1;
             }
             if (!isNaN(total) && rolagem[0] != '' && rolagem[0] != 0 && rolagem[1] != 0) {
-                message.channel.send(` O valor do dado foi -> ${valor} com o total de ->  ${total}`);
+                message.channel.send(` O valor do dado foi -> ${conteudo} com o total de ->  ${total}`);
             }
             else {
                 error;
@@ -181,9 +173,8 @@ client.on("message", async message => {
     //Comando !transferir (transfere gold de um usuario para outro)
     if (comando === "transferir") {
         try {
-            var valor = message.content.substr(13).split(' ');
-            var valorTrans = parseInt(valor[0]);
-            var idRecebedor = valor[1].replace("<@", "").replace(">", "");
+            var valorTrans = parseInt(conteudo[0]);
+            var idRecebedor = conteudo[1].replace("<@", "").replace(">", "");
             if (idRecebedor.length != 18) {
                 throw "usuario";
             }
@@ -195,7 +186,7 @@ client.on("message", async message => {
             }
             await setBanco.setGold(idCliente, "remover", valorTrans)
             await setBanco.setGold(idRecebedor, "add", valorTrans)
-            message.channel.send(`${message.author.username} transferiu com sucesso *R$${valorTrans}* para ${valor[1]}`)
+            message.channel.send(`${message.author.username} transferiu com sucesso *R$${valorTrans}* para ${conteudo[1]}`)
 
         } catch (error) {
             if (error === "dinheiro") {
@@ -217,14 +208,14 @@ client.on("message", async message => {
             const attachment = new Attachment(buffer, filename);
             await message.channel.send(attachment);
         } catch (error) {
-            // client.logger.error(error.stack);
+            // client.logger.error(error.stack)
             return message.channel.send(`Deu erro zé ruela`);
         }
     }
     //Comando !criar (criar novo personagem)
     if (comando === "criar") {
         try {
-            let nomeNpc = message.content.substr(7);
+            let nomeNpc = message.content.substr(comando.length + 3);
             if (nomeNpc.length > 0) {
                 await setBanco.setNpc(idCliente, "null", nomeNpc);
                 message.channel.send(`Personagem *${nomeNpc}* criado com sucesso`)
@@ -246,8 +237,7 @@ client.on("message", async message => {
     if (comando === "batalha" || comando === "combate") {
         try {
             await getBanco.getNpc(message, idCliente);
-            var valor = message.content.substr(10).split(' ');
-            var dificuldade = parseInt(valor[1]);
+            var dificuldade = parseInt(conteudo[1]);
             if (ouro.length == 0 && ouro.length != undefined) {
                 throw "semPersonagem";
             }
