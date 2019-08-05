@@ -98,12 +98,19 @@ exports.getProfile = async function (message) {
         }
     }
 
-} 
+}
 
 exports.getDungeon = async function (idCliente) {
     await database.ref(`${idCliente}`).once('value').then(async function (data) {
         if (data.val() == null) {
             dungeon = '';
+        }
+        else if (data.val().dungeon == undefined) {
+            database.ref(`${idCliente}`)
+                .update({
+                    dungeon: ''
+                })
+
         }
         else {
             nomeNpc = data.val().nomeNpc

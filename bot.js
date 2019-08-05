@@ -300,23 +300,29 @@ client.on("message", async message => {
             await getBanco.getDungeon(idCliente);
             let dificuldade = parseInt(conteudo[0]);
             let date = new Date();
-            
-            if (nomeNpc != '' && dungeon.length == 0){
+            console.log(dungeon.length, nomeNpc);
+
+            if (dungeon.length == 0 && nomeNpc != '') {
                 date.setMinutes(date.getMinutes() + dificuldade * 30)
+
                 await setBanco.setDungeon(idCliente, date);
                 message.channel.send(`${nomeNpc} acaba de entrar em uma dungeon nivel ${dificuldade}!`)
             }
-            else if(dungeon.length != 0){
-                if(date <= dungeon){
+            else if (dungeon.length != 0) {
+                if (date <= dungeon) {
                     await setBanco.setDungeon(idCliente, '');
                     message.channel.send(`${nomeNpc} acaba de terminar uma dungeon!`)
                 }
-                else{
+                else {
                     dungeon = new Date(dungeon);
-                    message.channel.send(`Ainda falta ${dungeon.getHours() - date.getHours()} hr(s), ${dungeon.getMinutes() - date.getMinutes()} minutos, e ${dungeon.getSeconds() - date.getSeconds()} segundos, para ${nomeNpc} terminar sua dungeon`)
+                    dungeon = dungeon.getTime() - date.getTime()
+                    let segundos = Math.trunc((dungeon / 1000) % 60);   
+                    let minutos = Math.trunc((dungeon / 60000) % 60); 
+                    let horas = Math.trunc(dungeon / 3600000);
+                    message.channel.send(`Ainda falta ${horas} hr(s), ${minutos} minuto(s) e ${segundos} segundo(s) para ${nomeNpc} terminar sua dungeon`)
                 }
             }
-            else{
+            else {
                 message.channel.send(`Você não possui nenhum personagem, tente usar o comando !criar`);
             }
         } catch (error) {
