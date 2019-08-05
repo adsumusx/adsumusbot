@@ -217,7 +217,7 @@ client.on("message", async message => {
     //Comando !criar (criar novo personagem)
     if (comando === "criar") {
         try {
-            let nomeNpc = message.content.substr(comando.length + 3);
+            let nomeNpc = message.content.substr(comando.length + config.prefix.length + 1);
             if (nomeNpc.length > 0) {
                 await setBanco.setNpc(idCliente, "null", nomeNpc);
                 message.channel.send(`Personagem *${nomeNpc}* criado com sucesso`)
