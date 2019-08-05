@@ -69,3 +69,14 @@ exports.setGold = async function (idCliente, tipo, valorOuro) {
 
     }
 }
+
+exports.setDungeon = async function (idCliente, date) {
+    try {
+        database.ref(`${idCliente}`)
+            .update({
+                dungeon: date
+            })
+    } catch (error) {
+
+    }
+}

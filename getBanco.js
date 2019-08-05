@@ -99,3 +99,15 @@ exports.getProfile = async function (message) {
     }
 
 } 
+
+exports.getDungeon = async function (idCliente) {
+    await database.ref(`${idCliente}`).once('value').then(async function (data) {
+        if (data.val() == null) {
+            dungeon = '';
+        }
+        else {
+            nomeNpc = data.val().nomeNpc
+            dungeon = data.val().dungeon
+        }
+    });
+}

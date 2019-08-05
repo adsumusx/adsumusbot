@@ -31,6 +31,8 @@ global.nomeNpc = '';
 global.vida = '';
 global.dano = '';
 global.estamina = '';
+global.dungeon = '';
+
 
 client.on("ready", () => {
     console.log(`Bot foi iniciado`);
@@ -48,7 +50,7 @@ client.on("message", async message => {
     //Pegar comando que o usuario digitou
     const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
     const comando = args.shift().toLowerCase();
-    const conteudo =  message.content.substr(comando.length + config.prefix.length + 1).split(' ');
+    const conteudo = message.content.substr(comando.length + config.prefix.length + 1).split(' ');
     //Comando !ping (retorna latencia da API e do BOT)
     if (comando === "ping") {
         let m = await message.channel.send("Ping?");
@@ -81,7 +83,7 @@ client.on("message", async message => {
         try {
             const valorAposta = parseInt(conteudo[1]);
             const ladoMoeda = conteudo[0].toLowerCase();
-            if (ladoMoeda != "cara" && ladoMoeda != "coroa" &&  ladoMoeda != "heads" && ladoMoeda != "tails") {
+            if (ladoMoeda != "cara" && ladoMoeda != "coroa" && ladoMoeda != "heads" && ladoMoeda != "tails") {
                 throw "moeda";
             }
 
@@ -173,8 +175,8 @@ client.on("message", async message => {
     //Comando !transferir (transfere gold de um usuario para outro)
     if (comando === "transferir") {
         try {
-            var valorTrans = parseInt(conteudo[0]);
-            var idRecebedor = conteudo[1].replace("<@", "").replace(">", "");
+            let valorTrans = parseInt(conteudo[0]);
+            let idRecebedor = conteudo[1].replace("<@", "").replace(">", "");
             if (idRecebedor.length != 18) {
                 throw "usuario";
             }
@@ -237,7 +239,7 @@ client.on("message", async message => {
     if (comando === "batalha" || comando === "combate") {
         try {
             await getBanco.getNpc(message, idCliente);
-            var dificuldade = parseInt(conteudo[1]);
+            let dificuldade = parseInt(conteudo[1]);
             if (ouro.length == 0 && ouro.length != undefined) {
                 throw "semPersonagem";
             }
@@ -290,6 +292,35 @@ client.on("message", async message => {
             if (error == "estamina") {
                 message.channel.send(`Você não tem estamina suficiente para combater`)
             }
+        }
+    }
+    //Comando !dungeon (personagem do usuario entra em uma dugeon por determinado tempo)
+    if (comando === "dungeon" || comando === "aventura") {
+        try {
+            await getBanco.getDungeon(idCliente);
+            let dificuldade = parseInt(conteudo[0]);
+            let date = new Date();
+            
+            if (nomeNpc != '' && dungeon.length == 0){
+                date.setMinutes(date.getMinutes() + dificuldade * 30)
+                await setBanco.setDungeon(idCliente, date);
+                message.channel.send(`${nomeNpc} acaba de entrar em uma dungeon nivel ${dificuldade}!`)
+            }
+            else if(dungeon.length != 0){
+                if(date <= dungeon){
+                    await setBanco.setDungeon(idCliente, '');
+                    message.channel.send(`${nomeNpc} acaba de terminar uma dungeon!`)
+                }
+                else{
+                    dungeon = new Date(dungeon);
+                    message.channel.send(`Ainda falta ${dungeon.getHours() - date.getHours()} hr(s), ${dungeon.getMinutes() - date.getMinutes()} minutos, e ${dungeon.getSeconds() - date.getSeconds()} segundos, para ${nomeNpc} terminar sua dungeon`)
+                }
+            }
+            else{
+                message.channel.send(`Você não possui nenhum personagem, tente usar o comando !criar`);
+            }
+        } catch (error) {
+
         }
     }
 });
