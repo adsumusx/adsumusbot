@@ -70,12 +70,31 @@ exports.setGold = async function (idCliente, tipo, valorOuro) {
     }
 }
 
-exports.setDungeon = async function (idCliente, date) {
+exports.setDungeon = async function (idCliente, date, status) {
     try {
-        database.ref(`${idCliente}`)
+        if(status == 'iniciar'){
+            database.ref(`${idCliente}`)
             .update({
                 dungeon: date
             })
+        }
+        else if(status == 'terminar'){
+            database.ref(`${idCliente}`)
+            .update({
+                dungeon: '',
+                xpNpc: xpNpc,
+                gold: gold
+            })
+        }
+        else if(status == 'upar'){
+            database.ref(`${idCliente}`)
+            .update({
+                dungeon: '',
+                xpNpc: xpNpc,
+                nivelNpc: nivelNpc,
+                gold: gold
+            })
+        }
     } catch (error) {
 
     }

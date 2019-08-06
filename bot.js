@@ -304,13 +304,19 @@ client.on("message", async message => {
 
             if (dungeon.length == 0 && nomeNpc != '') {
                 date.setMinutes(date.getMinutes() + dificuldade * 30)
-
-                await setBanco.setDungeon(idCliente, date);
+                await setBanco.setDungeon(idCliente, date, 'iniciar');
                 message.channel.send(`${nomeNpc} acaba de entrar em uma dungeon nivel ${dificuldade}!`)
             }
             else if (dungeon.length != 0) {
                 if (date <= dungeon) {
-                    await setBanco.setDungeon(idCliente, '');
+                    await getBanco.getXp(message, idCliente);
+                    proxNivelNpc = Math.pow(nivelNpc, 3) + 10;
+                    if(proxNivelNpc <= xpNpc){
+                        await setBanco.setDungeon(idCliente, '', 'upar');
+                    }
+                    else{
+                        await setBanco.setDungeon(idCliente, '', 'terminar');
+                    }
                     message.channel.send(`${nomeNpc} acaba de terminar uma dungeon!`)
                 }
                 else {
@@ -326,8 +332,21 @@ client.on("message", async message => {
                 message.channel.send(`Você não possui nenhum personagem, tente usar o comando !criar`);
             }
         } catch (error) {
-
+            message.channel.send(`Repita o comando de forma certa -> !dungeon x - Substituindo o x pelo nivel que deseja.`);
         }
+    }
+    //Comando !loja (mostra a lista de itens compraveis)
+    if(comando === "loja" || comando === "shop"){
+        try {
+            
+        } catch (error) {
+            
+        }
+    }
+
+    //Comando !classe (define uma classe pro personagem do usuario)
+    if(comando === "classe"){
+        
     }
 });
 
